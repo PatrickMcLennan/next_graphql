@@ -3,19 +3,22 @@ import Head from 'next/head';
 import styled from 'styled-components';
 import { useQuery } from 'urql';
 import client from '../client';
+import Card from '../components/Card';
 
 const H1Styles = styled.h1`
   ${({ theme: { fontLine } }) => fontLine(5)};
   text-align: center;
 `;
 
-function Home(): JSX.Element {
+function Home(props): JSX.Element {
+  console.log(props);
   const [res] = useQuery({
     query: `
             query {
                 getUsers {
-                    login
                     id
+                    login
+                    avatar_url
                 }
             }
         `,
@@ -27,15 +30,11 @@ function Home(): JSX.Element {
     return (
       <>
         <H1Styles>Hello World!</H1Styles>
-        {res.data.getUsers.map(user => (
-          <>
-            <p key={user.login}>{user.login}</p>
-          </>
-        ))}
+        <h2>CSR Queried:</h2>
+        {res.data.getUsers.map(Card)}
+        <h2>SSR Queried: (viewable in Page Source)</h2>
       </>
     );
 }
 
-export default withUrqlClient(ssrExchange => ({
-  ...client,
-}))(Home);
+export default withUrqlClient(() => client)(Home);
